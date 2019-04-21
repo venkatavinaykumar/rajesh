@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/venkatavinaykumar/rajesh:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/venkatavinaykumar/rajesh:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: rajesh
+        chartPath: charts/rajesh
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/venkatavinaykumar/rajesh'
+          image.tag: '{{.DIGEST_HEX}}'
